@@ -1,0 +1,130 @@
+' Gambas class file
+
+hHBox As HBox                                                                 'For building the items on the Form
+hlabel As Label                                                               'For building the items on the Form
+hButton As Button                                                             'For building the items on the Form
+hPanel As Panel                                                               'For building the items on the Form
+hSeparator As Separator                                                       'For building the items on the Form
+
+Public Sub Form_Open()                                                        'When the Form opens..
+
+Me.Arrangement = Arrange.Vertical                                             'Arrange the Form vetically
+Me.padding = 5                                                                'Pad the margin
+Me.Icon = Picture["../icon.png"]                                              'Add an Icon
+
+BuildForm                                                                     'Go to the BuildForm routine
+BestScores                                                                    'Go to the BestScores routine
+BottomButtons                                                                 'Go to the BottomButton routine
+
+End
+
+Public Sub BuildForm()                                                        'To build the items on the Form
+Dim sText As New String[]                                                     'For building the congratulatory message
+Dim siCount As Short                                                          'Counter
+
+sText.Add("Congratulations, you have completed the puzzle")                   'Build message
+sText.Add(Settings["Moves"] & " Moves in " & Settings["Time"])                'Build message
+sText.Add("BEST SCORES")                                                      'Add header
+
+For siCount = 0 To 2                                                          'Loop 3 times
+  hHBox = New HBox(Me)                                                        'Create a new HBox
+  hHBox.Height = 28                                                           'Set HBox height
+  
+  hLabel = New Label(hHBox)                                                   'Add a label in the HBox
+  With hLabel                                                                 'Set the Label properties
+    .Height = 28                                                              'Height
+    .expand = True                                                            'Expand
+    .Font.Bold = True                                                         'Make the text bold
+    .Alignment = Align.Center                                                 'Centre the text
+    .Text = sText[siCount]                                                    'Add the next line of text
+  End With  
+  If siCount = 1 Then AddSeparator                                            'Add a separator
+Next
+
+End
+
+Public Sub AddSeparator()                                                     'To add a separator
+
+hSeparator = New Separator(Me)                                                'Create a Separator
+hSeparator.Height = 1                                                         'Set the height
+hSeparator.Background = Color.black                                           'Set the background colour
+
+End
+
+Public Sub BottomButtons()                                                    'To create the last items on the Form
+
+hHBox = New HBox(Me)                                                          'Add a new HBox
+hHBox.expand = True                                                           'Expand
+
+AddSeparator                                                                  'Add a separator
+
+hHBox = New HBox(Me)                                                          'Add a new HBox
+hHBox.Height = 28                                                             'Height
+
+hPanel = New Panel(hHBox)                                                     'Add a new Panel
+HPanel.expand = True                                                          'Expand, this pushes the Button to the right
+
+hButton = New Button(hHBox) As "AllButtons"                                   'Add a Button and add it to the 'AllButtons' Event Handler
+With Hbutton                                                                  'Set the Button properties
+  .Width = 105                                                                'Width
+  .Tag = "Done"                                                               'Tag, used to identify the control
+  .Text = "&Done"                                                             'Text with keyboard shortcut
+  .Tooltip = "Return to the game"                                             'Tooltip
+  .Picture = Picture["icon:/22/ok"]                                           'Add an Picture to the Button
+End With
+
+End
+
+Public Sub AllButtons_click()                                                 'Captures the button(s) being clicked
+
+Select Case Last.tag                                                          'Get the Tag of the last Button pressed
+  Case "Done"                                                                 'If the Tag is "Done" then..
+    Me.close                                                                  'Close this Form
+End Select
+
+End
+
+Public Sub BestScores()                                                       'Controls the 'Best Scores' Below, get the Best Scores or use the default
+Dim vBest As Variant[] = Settings["Best", [9999, "00:00:00", 9999, "00:00:00", 9999, "00:00:00", 9999, "00:00:00", 9999, "00:00:00", 9999, "00:00:00", 9999, "00:00:00", 9999, "00:00:00", 9999, "00:00:00", 9999, "00:00:00"]]
+Dim vNew As New Variant[]                                                     'Used for the Best Scores after being sorted
+Dim siCount, siLoop As Short                                                  'Counters
+Dim Scores As New Score[]                                                     'Score store
+Dim Score As Score                                                            'Score
+
+vBest.add(Settings["Moves"])                                                  'Add the last 'Moves' to vBest
+vBest.add(Settings["Time"])                                                   'Add the last 'Time' to vBest
+
+For siCount = 0 To 21 Step 2                                                  'Loop through 10 top scores + the last score
+  Score = New Score                                                           'Create a new Score
+  Score.Moves = vBest[siCount]                                                'Add the 'Moves'
+  Score.dTime = vBest[siCount + 1]                                            'Add the 'Time'
+  Scores.Add(Score)                                                           'Add to Scores
+Next
+
+Scores.Sort()                                                                 'Sort Scores
+
+For siCount = 0 To 9                                                          'Loop through the 1st 10 top scores
+  vNew.Add(Scores[siCount].Moves)                                             'Add the 'Moves' to vNew
+  vNew.Add(Scores[siCount].dTime)                                             'Add the 'Time' to vNew
+Next
+
+Settings["Top Score"] = vNew[0] & "," & vNew[1]                               'Set the Top Score settings
+Settings["Best"] = vNew                                                       'Set all the top 10 scores
+Settings.Save                                                                 'Save the settings
+
+For siCount = 0 To 19 Step 2                                                  'Loop through siSorter 
+  If vNew[siCount] = 9999 Then Break                                          'If vNew value = 9999 then end loop
+Next
+
+For siLoop = 0 To siCount - 1 Step 2                                          'Loop throuh all the scores created
+  hHBox = New HBox(Me)                                                        'Add a new HBox
+  hHBox.height = 28                                                           'Height
+  hLabel = New Label(hHBox)                                                   'Add a new label in the HBox
+  hLabel.height = 28                                                          'Height
+  hLabel.Expand = True                                                        'Expand
+  hLabel.Alignment = Align.Center                                             'Centre the text
+  hLabel.Font.bold = True                                                     'Make the text bold
+  hLabel.Text = vNew[siLoop] & " Moves in " & vNew[(siLoop) + 1]              'Add text
+Next
+
+End

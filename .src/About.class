@@ -1,0 +1,86 @@
+' Gambas class file
+
+Public Sub Form_Open()                                              'When the Form opens..
+Dim hTextArea As TextArea                                           'TextArea
+Dim hHBox As HBox                                                   'HBox
+Dim hLabel As Label                                                 'Label
+Dim hButton As Button                                               'Button
+Dim hPanel As Panel                                                 'Panel
+Dim sOutput As String                                               'To store the output string
+
+Me.Icon = Picture["../icon.png"]                                    'Form icon
+Me.Arrangement = Arrange.Vertical                                   'Arrange the Form
+Me.Height = 720                                                     'Form Height
+Me.Width = 1220                                                     'Form Width
+Me.Padding = 5                                                      'Form Padding
+
+hTextArea = New TextArea(Me)                                        'Create a TextArea on the Form
+hTextArea.Expand = True                                             'Expand the TextArea
+hTextArea.Wrap = True                                               'Allow word wrapping
+
+sOutput = "The object of the game is to get all the" &       'Build the text to display
+" numbers in the correct order and the blank space positioned after the '15'. The timer will start automatically when you start the game by clicking on a number." & gb.NewLine & gb.NewLine
+sOutput &= "Inspiration came from: -" & gb.NewLine & "http://rosettacode.org/wiki/15_Puzzle_Game (Hyperlink at bottom of this form)." & gb.NewLine & gb.NewLine
+sOutput &= "The 'IsItSolvable' routine created with help from https://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html." & gb.NewLine
+sOutput &= "The 'Score.class' created by Matt Collins with thanks." & gb.NewLine & gb.NewLine
+sOutput &= "Bugs or comments to bugs@cogier.com." & gb.NewLine & gb.NewLine
+sOutput &= "Written in Gambas 3.10.0 - First upload to the Gambas Farm 01/05/2017." & gb.NewLine
+sOutput &= "Updated so that the message and the Title show the same amount of moves 01/06/2017." & gb.NewLine
+sOutput &= "Form now expandable. Font height automated. Form size and position saved 06/06/2107." & gb.NewLine
+sOutput &= "Replay option added. Changed 'gb.qt4' to 'gb.gui.qt'. Some code reduction 22/07/2017." & gb.NewLine
+sOutput &= "High score routine and 'Winner' banner added 04/09/2017." & gb.NewLine & gb.NewLine
+sOutput &= "Simulate playing the 15 - game(puzzle)         	Yes in GUI" & gb.NewLine
+sOutput &= "Generate a random start position              	Yes" & gb.NewLine
+sOutput &= "Prompt the user for which piece To move       	No" & gb.NewLine
+sOutput &= "Validate if the move is legal(possible)        	Yes" & gb.NewLine
+sOutput &= "Display the game(puzzle) as pieces are moved   	Yes in GUI" & gb.NewLine
+sOutput &= "Announce when the puzzle is solved             	Yes" & gb.NewLine
+sOutput &= "Possibly keep track of the number of moves     	Yes" & gb.NewLine & gb.NewLine
+sOutput &= "15PuzzleGame Copyright (C) Charlie Ogier 2017" & gb.NewLine & gb.NewLine
+sOutput &= "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ' Software '), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:" & gb.NewLine
+sOutput &= "The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software." & gb.NewLine & gb.NewLine
+sOutput &= "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE." & gb.NewLine
+
+hTextArea.text = sOutput                                            'Display the text
+
+hHBox = New HBox(Me)                                                'Create a HBox on the Form
+hHBox.Height = 28                                                   'HBox Height
+
+hLabel = New Label(hHbox) As "LabelURL"                             'Create a Label in the HBox
+With hLabel                                                         'Set Label properties
+  .Text = "http://rosettacode.org/wiki/15_Puzzle_Game"              'Add Text
+  .width = Me.Width                                                 'Width
+  .Expand = True                                                    'Expand
+  .Alignment = Align.Center                                         'Alignment
+  .Foreground = Color.Blue                                          'Foreground colour
+  .Font.Underline = True                                            'Underline the Text
+  .Mouse = Mouse.Pointing                                           'Make the mouse into a 'Hand' when over the Label
+End With
+
+hHBox = New HBox(Me)                                                'Create a HBox on the Form
+hHBox.Height = 28                                                   'Height
+hHBox.Width = Me.Width                                              'Width
+
+hPanel = New Panel(hHbox)                                           'Create a Panel in the HBox
+hPanel.expand = True                                                'Expand the Panel (Pushes the 'Done' button to the right)
+
+hButton = New Button(hHBox) As "ButtonDone"                         'Create a Buttone in the HBox
+hButton.Width = 105                                                 'Width
+hButton.Picture = Picture["icon:/22/ok"]                            'Add an Picture
+hButton.Text = "&Done"                                              'Add Text
+
+End
+
+Public Sub ButtonDone_Click()                                       'What to do when the Done Button is clicked
+
+Me.Close                                                            'Close the Form
+
+End
+
+Public Sub LabelURL_MouseDown()                                     'If the URL Label is clicked..
+
+Desktop.Open("http://rosettacode.org/wiki/15_Puzzle_Game")          'Open the Rosetta web page
+
+End
+
+

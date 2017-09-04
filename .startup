@@ -1,0 +1,13 @@
+FMain
+15 Puzzle game
+0
+0
+0.5.0
+
+gb.image
+gb.gui.qt
+gb.form
+gb.desktop.x11
+gb.desktop
+gb.settings
+

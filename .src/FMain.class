@@ -1,0 +1,409 @@
+' Gambas class file
+
+'Charlie Ogier (C) 15PuzzleGame 24/04/2017 V0.4.0 Licenced under MIT
+'See About for further information
+
+hLCDLabel As LCDLabel                                           'LCD display
+hPlayAreaPanel As Panel                                         'Panel for the play area
+hFillerPanel As Panel                                           'Filler panel
+hToolButton As ToolButton                                       'To create TollButtons
+hTopHBox As HBox                                                'To create a HBox
+byPos As New Byte[]                                             'Stores the position of the 'Tiles'
+siMoves As Short                                                'Stores the amount of moves
+hTimer As Timer                                                 'Timer
+hTimer2 As Timer                                                'Timer
+dTimerStart As Date                                             'Stores the start time 
+dTimerDiff As Date                                              'Stores the time from the start to now
+bTimerOn As Boolean                                             'To know if the Timer is running
+byChecker As New Byte[16, 4]                                    'Stores possible positions of the clicked button
+byMessage As Byte                                               'Controls wich message to diaplay on the LCD
+
+Public Sub Form_Open()                                          'Form opens
+
+Application.MainWindow = Me                                     'Close this window and all others will close as well
+Settings.read(Me, "Window")                                     'Get details of the last window position and size
+Me.Icon = Picture["../icon.png"]                                'Form icon
+BuildTopPanel                                                   'Built the Top panel and add ToolButtons
+BuildPlayArea                                                   'Build the Play Area
+BuildChecker                                                    'Build the array used to find the blank space
+BuildForm                                                       'Go to the BuildForm routine
+AddTimers                                                       'Go to the AddTimers routine
+Start                                                           'Go to the Start routine
+End
+
+Public Sub Start()
+
+hTimer2.trigger                                                 'Run hTimer2 once
+hTimer2.start                                                   'Runs the LCD Display
+
+End
+
+Public Sub BuildTopPanel()                                      'To build the ToolButton Panel
+Dim sName As String[] = ["close", "about", "restart"]           'Button names
+Dim sToolTips As String[] = ["Exit", "Program information", "Restart the game"]     'Button ToolTips
+Dim sPictures As String[] = ["icon:/32/close", "icon:/32/info", "icon:/32/refresh"] 'Picture icons for the ToolButtons
+Dim siCount As Short                                            'Counter
+Dim sTemp As String                                             'Temp string
+
+hTopHbox = New HBox(Me)                                         'Add a new HBox
+hTopHbox.Height = 32                                            'Set HBox height
+hTopHbox.Padding = 2
+
+For Each sTemp In sPictures                                     'For each item in sPictures..
+  hToolButton = New ToolButton(hTopHBox) As "AllToolButtons"    'Create a new ToolButton with the Event name 'AllToolButtons'
+  With hToolButton                                              'With the ToolButton..
+    .Height = 28                                                'Set the Height
+    .Width = 28                                                 'Set the Width
+    .Picture = Picture[sPictures[siCount]]                      'Add the Icon
+    .Tag = sName[siCount]                                       'Add a Tag so that when clicked we can work out which one was pressed
+    .ToolTip = sToolTips[siCount]                               'Add a ToolTip
+  End With  
+  Inc siCount                                                   'Increase counter
+  AddFillerPanel(7)                                             'Add a small filler Panel
+Next
+
+hLCDLabel = New LCDLabel(hTopHBox) As "LCDisplay"               'Add a LCD display to the hTopBox
+With hLCDLabel                                                  'Change the LCDDisplay properties
+  .Height = 28                                                  'Height
+  .Expand = True                                                'Expand
+  .Foreground = Color.Yellow                                    'Colours
+  .BackGround = Color.Black                                     'Colours
+  .HighlightColor = Color.Yellow                                'Colours
+  .Alignment = Align.Center                                     'Alignment
+  .Sheared = True                                               'Text on the angle
+  .Padding = 2                                                  'Pad it a little
+End With
+
+AddFillerPanel(2)                                               'Add a small filler Panel
+
+End
+
+Public Sub AddFillerPanel(siLength As Short)                    'To add a filler Panel
+
+hFillerPanel = New Panel(hTopHbox)                              'Add a Panel
+hFillerPanel.Width = siLength                                   'Panel to be 'siLength' wide 
+
+End
+
+Public Sub AllToolButtons_click()                               'When a ToolButton is clicked..
+
+Select Case Last.Tag                                            'Select the case depending on the Tag of the button clicked
+  Case "close"                                                  'If Tag is 'close' then
+    Me.Close                                                    'Close the Form
+  Case "about"                                                  'If Tag is 'about' then
+    About.Show                                                  'Show the 'About' Form
+  Case "restart"                                                'If the Tag is 'restart' then
+    If Message.Question("Are you sure you want to restart the game?", "Cancel", "Restart") > 1 Then PreStart 'Restart if requested
+End Select
+
+End
+
+Public Sub BuildPlayArea()                                      'Build the Play Area
+
+hPlayAreaPanel = New Panel(Me)                                  'Create a new Panel on the Form
+With hPlayAreaPanel                                             'With the Panel..
+  .Arrangement = Arrange.Row                                    'Arrange it
+  .Expand = True                                                'Expand it
+  .W = Me.W - Me.Padding * 2                                    'Set width
+  .H = Me.H - (Me.Padding * 2) - 32                             'Set the height
+End With
+
+Me.Arrangement = Arrange.Vertical                               'Arrange the Form
+
+End
+
+Public Sub BuildForm()                                          'To add items to the Form
+Dim byRand, byTest As Byte                                      'Various variables
+Dim bOK As Boolean                                              'Used to stop duplicate numbers being added
+Dim bSolvable As Boolean
+
+byPos.clear                                                     'Clear the global variable
+
+With Me                                                         'With the Form..
+  .Padding = 5                                                  'Pad the edges
+  .Title = "15PuzzleGame v0.5.0"                                'Set the Form Title
+End With
+
+Repeat                                                          'Repeat until the puzzle is solvable    
+  Do                                                            'Start of a Do loop to create 0 to 15 in random order
+    byRand = Rand(0, 15)                                        'Get a random number between 0 and 15
+    If byRand = 0 Then byRand = 99                              'Change 0 to 99 for the Blank space
+    bOK = True                                                  'Set bOK to True
+    For Each byTest In byPos                                    'For each number stored in the array byPos
+      If byRand = byTest Then bOK = False                       'Check to see if it already exists, if it does set bOK to False
+    Next
+    If bOK Then byPos.Add(byRand)                               'If not a duplicate then add it to the array
+    If byPos.max = 15 Then Break                                'Once the array has 16 numbers get out of here. 99 is used for the blank space
+  Loop
+  bSolvable = IsItSolvable()                                    'Go to the 'check if puzzle is solvable' routine
+  If Not bSolvable Then byPos.clear                             'If it's not solvable then clear byPos
+Until bSolvable = True                                          'Repeat until the puzzle is solvable
+
+For byRand = 0 To 15                                            'Loop
+  If byPos[byRand] = 99 Then                                    'Check if value is 99 as this is where the blank space will go
+    AddPanel                                                    'Go to the AddPanel routine to add the blank space
+    Continue                                                    'Skip to the end of the loop
+  Endif
+Next
+
+End
+
+Public Sub AddPanel()                                           'Routine to add an invisible panel that is the blank area
+Dim hPanel As Panel                                             'We need a Panel
+
+HPanel = New Panel(hPlayAreaPanel)                              'Add the Panel to the Form
+With HPanel                                                     'With the following Properties
+  .Tag = 99                                                     'Set a Tag to 99
+  .Height = (hPlayAreaPanel.Height) / 4                         'Set the height
+  .Width = (hPlayAreaPanel.Width) / 4                           'Set the width
+End With
+
+End
+
+Public Sub AddTimers()                                          'To add Timers
+
+hTimer = New Timer As "MyTimer"                                 'Add a Timer used for timing the play
+hTimer.delay = 100
+
+hTimer2 = New Timer As "LCDTimer"                               'Add a Timer used to rotate the LCD Display
+hTimer2.Delay = 3000
+
+End
+
+Public Sub MyTimer_Timer()                                      'Timer
+Dim sDisplay As String                                          'Display String 
+
+If siMoves = 1 Then                                             'If 1 move then.. 
+  sDisplay = Str(siMoves) & " Move   "                          'Use 'Move'
+Else                                                            'Else
+  sDisplay = Str(siMoves) & " Moves   "                         'Use 'Moves'
+End If
+
+If dTimerStart Then                                                                         'If a start time has been set then
+  dTimerDiff = Time(Now) - dTimerStart                                                      'Calculate the time difference between StartTime and Now
+  If Val(Format(dTimerDiff, "h")) > 0 Then sDisplay &= Format(dTimerDiff, "h") & " hrs  "   'Build display string, if hours exist
+  If Val(Format(dTimerDiff, "n")) > 0 Then 
+    If Val(Format(dTimerDiff, "n")) = 1 Then sDisplay &= Format(dTimerDiff, "n") & " min  " 'Build display string, if minute = 1
+  Else
+    sDisplay &= Format(dTimerDiff, "n") & " mins  "                                         'Build display string, if minutes are greater than 1
+  End If
+  sDisplay &= Format(dTimerDiff, "s") & " secs"                                             'Build display string, seconds
+End If
+
+hLCDLabel.text = sDisplay                                       'Add the Display String to the LCD Display
+
+End
+
+Public Sub StartTimer_Timer()                                   'Used to refresh the display
+
+Me.Width -= 1                                                   'Change the width of the form, this generates a refresh
+
+End
+
+Public Sub AllButtons_Click()                                   'What to do when a Button is clicked
+Dim byLast As Byte = Last.Tag                                   'Get the Tag of the Button clicked
+Dim byTemp, byCount As Byte                                     'Various variables
+Dim byCheck As New Byte[]                                       'Used for finding the blank space
+Dim oObj As Object                                              'We need to enumerate Objects
+
+For Each oObj In hPlayAreaPanel.Children                        'For each Object (Buttons in this case) that are Children of the Form..
+  If oObj.Tag = byLast Then Break                               'If the Tag of the Button matches then we know the position of the Button on the form so get out of here
+  Inc byCount                                                   'Increase the value of byCount
+Next
+
+For byTemp = 0 To 3                                             'Loop throught the, up to 4, possible positions of the blank
+  byCheck.Add(byChecker[byCount, byTemp])                       'Store the positions to check for the blank from the global variable byChecker
+Next
+
+For Each byTemp In byCheck                                      'For each value in byCheck
+  If byTemp = 88 Then Break                                     'If byTemp = 88 then get out of here
+  If byPos[byTemp] = 99 Then                                    'If the position checked is 99 (the blank) then..
+    byPos[byTemp] = Last.Text                                   'Set the new position of the Tile in byPos
+    byPos[byCount] = 99                                         'Set the existing Tile position to = 99 (blank)
+    Inc siMoves                                                 'Inc the amount of moves made
+    If Not bTimerOn Then                                        'If the Timer is now needed then
+      hTimer2.Stop                                              'Stop the LCD pre start display
+      dTimerStart = Time(Now)                                   'Set the Start time to NOW
+      hTimer.start                                              'Start the Timer
+      bTimerOn = True                                           'Set bTimerOn to True 
+    Endif
+    Break                                                       'Get out of here
+  End If
+Next
+
+RebuildForm                                                     'Go to the RebuilForm routine
+CheckIfPuzzleCompleted                                          'Check to see if the puzzle has been solved
+
+End
+
+Public Sub CheckIfPuzzleCompleted()                             'Is the puzzle is complete
+Dim byTest As Byte[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 99] 'byPos will equal this if it is completed
+Dim siCount As Short                                            'Counter 
+Dim bCompleted As Boolean = True                                'Completed?
+
+For siCount = 0 To 15                                           'Loop through the byPos
+  If byPos[siCount] <> byTest[siCount] Then                     'If the position does not match the completed position then..
+    bCompleted = False                                          'Set bCompleted to False
+    Break                                                       'Get out of here
+  Endif
+Next
+
+'bCompleted = True                                               'This line is for debugging only. This will end the game after 1 button click
+If bCompleted Then                                              'If the puzzle is completed then
+  hTimer.Stop                                                   'Stop the timer
+  hTimer.trigger                                                'Just one more trip around the Timer to ensure the Moves and Time are updated
+  Settings["Moves"] = siMoves                                   'Add moves to Settings
+  Settings["Time"] = Format(dTimerDiff, "hh:nn:ss")             'Add time taken to Settings
+  Settings.Save                                                 'Save the settings
+  Winner.Showmodal                                              'Show Winner!
+  NewDelay                                                      'Fancy 'Delay' routine
+  PreStart                                                      'Run the PreStart routine
+Endif
+
+End
+
+Public Sub NewDelay()                                           'Delay for effect only
+Dim sDisplay As String[] = ["THREE", "TWO", "ONE"]              'Countdown
+Dim siCount As Short                                            'Counter
+
+hPlayAreaPanel.enabled = False                                  'Disable the 'Play area'
+hTopHBox.enabled = False                                        'Disable the Tool Buttons
+
+For siCount = 0 To sDisplay.max                                 'Loop
+  hLCDLabel.Text = sDisplay[siCount]                            'Display the countdown
+  Wait 1                                                        'Wait
+Next
+
+hPlayAreaPanel.enabled = True                                   'Enable the 'Play area' 
+hTopHBox.enabled = True                                         'Enable the Tool Buttons
+
+Catch
+
+Me.close
+
+End
+
+Public Sub PreStart()                                           'Pre start routine used for reseting items prior to restarting the game
+
+siMoves = 0                                                     'Reset the 'Moves'
+bTimerOn = False                                                'Reset bTimer
+hTimer.Stop                                                     'Stop the main timer
+hPlayAreaPanel.Children.clear                                   'Clear all buttons from the Form
+BuildForm                                                       'Build a new collection of Buttons
+Me.Width -= 1                                                   'To force a refresh
+Me.Width += 1                                                   'Put the Frorm back to its original size
+Start                                                           'Run the Start routine
+
+End
+
+Public Sub RebuildForm()                                        'To clear the Form and rebuild with the Tiles in the new postion
+Dim hButton As Button                                           'We need Buttons
+Dim byCount, byTemp As Byte                                     'Various variables
+Dim siFontH As Short
+
+hPlayAreaPanel.Children.clear                                   'Clear the Form of all Objects
+
+For Each byTemp In byPos                                        'For each 'Position'
+  If byTemp = 99 Then                                           'If the Position's value is 99 then it's the space
+    AddPanel                                                    'Go to the AddPanel routine
+  Else                                                          'If the Position's value is NOT 99 then 
+    hButton = New Button(hPlayAreaPanel) As "AllButtons"        'Create a new Button
+  With hButton                                                  'With the following properties
+    .Text = Str(byPos[byCount])                                 'Text as stored in byPos
+    .Tag = Str(byPos[byCount])                                  'Tag as stored in byPos
+    .Height = (hPlayAreaPanel.Height) / 4                       'Set the Button height
+    .Width = (hPlayAreaPanel.Width) / 4                         'Set the Button width
+    .Font.Bold = True                                           'Set the Font to Bold
+  End With
+    If hPlayAreaPanel.Width > hPlayAreaPanel.Height Then        'If Form Width is greater than Form Width then..
+      siFontH = hPlayAreaPanel.Height                           'siFontH = Form Height
+    Else                                                        'Else..
+      siFontH = hPlayAreaPanel.Width                            'siFontH = Form Width
+    End If
+  hButton.Font.size = siFontH / 16                              'Set Font height
+  Endif
+  Inc byCount                                                   'Increase counter
+Next
+
+End
+
+Public Sub Form_Resize()                                        'If the form is resized
+
+If Me.width < 200 Then hLCDLabel.hide Else hLCDLabel.Show       'Hide the LCD if the form is too small. Prevents a "Bad Image" error
+RebuildForm                                                     'Rebuild the Form
+
+End
+
+Public Sub IsItSolvable() As Boolean                            'To check if the puzzle is solvable
+Dim bSolvable, bBlankOnEven As Boolean                          'Triggers
+Dim siCount0, siCount1, siInversion As Short                    'Counters
+
+For siCount0 = 0 To byPos.Max                                   'Loop through the positions
+  If byPos[siCount0] = 99 Then                                  'The blank
+    If InStr("0,1,2,3,8,9,10,11,", Str(siCount0 & ",")) Then    'Is the blank on an even row (counting from the bottom) if so..
+      bBlankOnEven = True                                       'bBlankOnEven = True
+    End If
+    Continue                                                    'Go to the end of the loop
+  End If
+  For siCount1 = siCount0 + 1 To byPos.Max                      'Loop through the positions 
+    If byPos[siCount0] > byPos[siCount1] Then Inc siInversion   'Counts the inversions
+  Next                                                          'See https://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html
+Next
+
+If bBlankOnEven And Odd(siInversion) Then bSolvable = True      'Blank is on an even row (counting from the bottom) then the number of inversions in a solvable situation is odd
+If Not bBlankOnEven And Even(siInversion) Then bSolvable = True 'Blank is on an odd row (counting from the bottom) then the number of inversions in a solvable situation is even
+
+Return bSolvable                                                'Return the value
+
+End
+
+Public Sub BuildChecker()                                       'Builds an array used to find the posible positions that a button could 'move' to. '88' is no position. e.g. if button in position 0 is pressed check position 1 and 4
+Dim byList As String[] = [1, 4, 88, 88, 0, 2, 5, 88, 1, 3, 6, 88, 2, 7, 88, 88, 0, 5, 8, 88, 1, 4, 6, 9, 2, 5, 7, 10, 3, 6, 11, 88, 4, 9, 12, 88, 5, 8, 10, 13, 6, 9, 11, 14, 7, 10, 15, 88, 8, 13, 88, 88, 9, 12, 14, 88, 10, 13, 15, 88, 11, 14, 88, 88]
+Dim byCount, byLoop, byNext As Byte                             'Counters
+
+For byCount = 0 To 15                                           'Count through global variable byChecker
+  For byLoop = 0 To 3                                           'Loop through the 4 positions
+    byChecker[byCount, byLoop] = byList[byNext]                 'Add to byChecker the byList numbers
+    Inc byNext                                                  'Increase byNext
+  Next
+Next
+
+End
+
+Public Sub LCDTimer_Timer()                                     'Timer for LCD display, used while waiting for the game to start
+Dim sLCDDisplay As New String[]                                 'Used to dispaly the time
+Dim dTime As Date = CDate(Settings["Time"])                     'Get the last game 'Time' as a date
+Dim sDisplay As String                                          'To hold the 'Time' string
+Dim sTopMoves, sTopTime, sTopScore As String
+
+If Settings["Top Score"] Then
+  sTopScore = "Top score: - " & Mid(Settings["Top Score"], 1, InStr(Settings["Top Score"], ",") - 1) & " Moves in "
+  sTopTime = Mid(Settings["Top Score"], InStr(Settings["Top Score"], ",") + 1)
+  If Val(Format(Val(sTopTime), "h")) > 0 Then sTopScore &= Format(Val(sTopTime), "h") & " hrs "             'Put the hours in sDisplay only if they exist
+  If Val(Format(Val(sTopTime), "n")) > 0 Then sTopScore &= Format(Val(sTopTime), "n") & " min "             'Put the hours in sDisplay only if they exist
+  sTopScore &= Format(Val(sTopTime), "s") & " sec" 
+End If
+  
+If Val(Format(dTimerDiff, "h")) > 0 Then sDisplay = Format(dTime, "h") & " hrs "             'Put the hours in sDisplay only if they exist
+If Val(Format(dTimerDiff, "n")) > 0 Then sDisplay &= Format(dTime, "n") & " min "            'Put the minutes in sDisplay only if they exist
+sDisplay &= Format(dTime, "s") & " sec"                                                       'Put the seconds in sDisplay
+
+sLCDDisplay.Add("Charlie Ogier Software")                                                     'That's me!
+sLCDDisplay.Add("Make a move to start")                                                       'Another message
+If Settings["Top Score"] <> "" Then sLCDDisplay.Add(sTopScore)                                'Another message
+sLCDDisplay.Add("Program written in Gambas 3")                                                'Another message
+If Settings["Moves"] <> "" Then
+  sLCDDisplay.Add("Last winner: - " & Settings["Moves"] & " Moves in " & sDisplay)            'Last winner score message
+End If
+
+hLCDLabel.text = sLCDDisplay[byMessage]                         'Display message
+If byMessage = sLCDDisplay.max Then byMessage = -1              'Reset byMessage if necessary
+Inc byMessage                                                   'Increase byMessage
+
+End
+
+Public Sub Form_Close()                                         'When the form closes
+
+Settings.Write(Me, "Window")                                    'Store the window position and size
+
+End

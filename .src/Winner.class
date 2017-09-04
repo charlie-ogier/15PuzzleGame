@@ -1,0 +1,30 @@
+' Gambas class file
+
+Public Sub Form_Open()                                'When the Form opens
+
+Me.Height = 448                                       'Set the Height
+Me.Width = 548                                        'Set the width
+Me.Border = False                                     'No Border
+Me.mask = True                                        'Set the Mask
+Me.Picture = Picture["../mask.png"]                   'Add the picture
+Me.SkipTaskbar = True                                 'Don't display on the TaskBar
+
+End
+
+Public Sub Form_GotFocus()                            'As soon as the form get the Focus
+Dim iOpacity As Integer                               'Used to set the Opacity of the Form
+
+Me.X = (FMain.X + (FMain.W / 2)) - (Me.W / 2)         'Postion the Form to match the FMain position
+Me.Y = 50 + (FMain.Y + (FMain.H / 2)) - (Me.W / 2)    'Postion the Form to match the FMain position
+
+Repeat                                                'Repeat..
+  Wait 0.01                                           'Wait..
+  Me.Opacity = iOpacity                               'Set the Forms Opacity
+  Inc iOpacity                                        'Increase the value of iOpacity
+Until iOpacity > 98                                   'Keep going until iOpacity = 98
+
+Wait 1                                                'Wait.. 
+Me.Hide                                               'Hide the Form
+EndGame.Showmodal                                     'Show the EndGame Form
+
+End

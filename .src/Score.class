@@ -1,0 +1,24 @@
+' Gambas class file
+
+' Score.class created by Matthew Collins
+
+Public Moves As Integer 
+Public dTime As Date
+
+Public Sub _compare(Other As Score) As Integer
+
+If Me.Moves = Other.Moves Then 
+  If Me.dTime = Other.dTime Then 
+    Return 0
+  Else If Me.dTime < Other.dTime Then
+    Return -1
+  Else
+    Return 1
+  Endif
+Else If Me.Moves < Other.Moves Then
+  Return -1
+Else
+  Return 1
+Endif
+
+End
