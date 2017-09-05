@@ -1,6 +1,6 @@
 ' Gambas class file
 
-'Charlie Ogier (C) 15PuzzleGame 24/04/2017 V0.4.0 Licenced under MIT
+'Charlie Ogier (C) 15PuzzleGame 24/04/2017 V0.5.0 Licenced under MIT
 'See About for further information
 
 hLCDLabel As LCDLabel                                           'LCD display
@@ -20,6 +20,7 @@ byMessage As Byte                                               'Controls wich m
 
 Public Sub Form_Open()                                          'Form opens
 
+CheckLatest                                                     'This checks for the lastest settings file
 Application.MainWindow = Me                                     'Close this window and all others will close as well
 Settings.read(Me, "Window")                                     'Get details of the last window position and size
 Me.Icon = Picture["../icon.png"]                                'Form icon
@@ -29,6 +30,16 @@ BuildChecker                                                    'Build the array
 BuildForm                                                       'Go to the BuildForm routine
 AddTimers                                                       'Go to the AddTimers routine
 Start                                                           'Go to the Start routine
+End
+
+Public Sub CheckLatest()                                        'This checks for the lastest settings file
+
+If Settings["Version"] <> "A" Then                              'If this value is not set then 
+ Try Kill User.home &/ ".config/gambas3/15PuzzleGame.conf"      'Try and delete the settings file
+ Settings["Version"] = "A"                                      'Create setting
+ Settings.save                                                  'Save setting
+Endif
+
 End
 
 Public Sub Start()
@@ -182,10 +193,15 @@ End If
 If dTimerStart Then                                                                         'If a start time has been set then
   dTimerDiff = Time(Now) - dTimerStart                                                      'Calculate the time difference between StartTime and Now
   If Val(Format(dTimerDiff, "h")) > 0 Then sDisplay &= Format(dTimerDiff, "h") & " hrs  "   'Build display string, if hours exist
+
   If Val(Format(dTimerDiff, "n")) > 0 Then 
-    If Val(Format(dTimerDiff, "n")) = 1 Then sDisplay &= Format(dTimerDiff, "n") & " min  " 'Build display string, if minute = 1
-  Else
-    sDisplay &= Format(dTimerDiff, "n") & " mins  "                                         'Build display string, if minutes are greater than 1
+
+    If Val(Format(dTimerDiff, "n")) = 1 Then                                                'If there is a minute to display then
+      sDisplay &= Format(dTimerDiff, "n") & " min  "                                        'Build display string, if minute = 1
+    Else
+      sDisplay &= Format(dTimerDiff, "n") & " mins  "                                       'Build display string, if minutes are greater than 1
+    End If
+
   End If
   sDisplay &= Format(dTimerDiff, "s") & " secs"                                             'Build display string, seconds
 End If
@@ -197,6 +213,7 @@ End
 Public Sub StartTimer_Timer()                                   'Used to refresh the display
 
 Me.Width -= 1                                                   'Change the width of the form, this generates a refresh
+Me.Width += 1                                                   'Reset the width of the form
 
 End
 
@@ -278,8 +295,6 @@ hPlayAreaPanel.enabled = True                                   'Enable the 'Pla
 hTopHBox.enabled = True                                         'Enable the Tool Buttons
 
 Catch
-
-Me.close
 
 End
 
@@ -374,7 +389,7 @@ Public Sub LCDTimer_Timer()                                     'Timer for LCD d
 Dim sLCDDisplay As New String[]                                 'Used to dispaly the time
 Dim dTime As Date = CDate(Settings["Time"])                     'Get the last game 'Time' as a date
 Dim sDisplay As String                                          'To hold the 'Time' string
-Dim sTopMoves, sTopTime, sTopScore As String
+Dim sTopTime, sTopScore As String
 
 If Settings["Top Score"] Then
   sTopScore = "Top score: - " & Mid(Settings["Top Score"], 1, InStr(Settings["Top Score"], ",") - 1) & " Moves in "

@@ -15,7 +15,7 @@ Public Sub Form_GotFocus()                            'As soon as the form get t
 Dim iOpacity As Integer                               'Used to set the Opacity of the Form
 
 Me.X = (FMain.X + (FMain.W / 2)) - (Me.W / 2)         'Postion the Form to match the FMain position
-Me.Y = 50 + (FMain.Y + (FMain.H / 2)) - (Me.W / 2)    'Postion the Form to match the FMain position
+Me.Y = 90 + (FMain.Y + (FMain.H / 2)) - (Me.W / 2)    'Postion the Form to match the FMain position
 
 Repeat                                                'Repeat..
   Wait 0.01                                           'Wait..
