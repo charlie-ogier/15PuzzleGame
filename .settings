@@ -83,12 +83,12 @@ Geometry=[1319,34,224,919]
 Path="15PuzzleGame.gambas"
 
 [OpenFile]
-File[1]=".src/FMain.class:92.305"
-Active=3
+File[1]=".src/FMain.class:94.412"
+Active=1
 Count=4
 File[2]=".src/EndGame.class:0.17"
 File[3]=".src/About.class:68.61"
-File[4]=".src/Winner.class:8.17"
+File[4]=".src/Winner.class:0.31"
 
 [Watches]
 Count=0

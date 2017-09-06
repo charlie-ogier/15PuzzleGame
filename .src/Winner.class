@@ -8,6 +8,7 @@ Me.Border = False                                     'No Border
 Me.mask = True                                        'Set the Mask
 Me.Picture = Picture["../mask.png"]                   'Add the picture
 Me.SkipTaskbar = True                                 'Don't display on the TaskBar
+Try Shell "espeak congratulations."                   'Try to get 'espeak' to say 'Congratulations'
 
 End
 

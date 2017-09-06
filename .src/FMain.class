@@ -309,6 +309,8 @@ Me.Width -= 1                                                   'To force a refr
 Me.Width += 1                                                   'Put the Frorm back to its original size
 Start                                                           'Run the Start routine
 
+Catch                                                           'Stops a crash when closing the program while it's busy
+
 End
 
 Public Sub RebuildForm()                                        'To clear the Form and rebuild with the Tiles in the new postion
@@ -399,8 +401,8 @@ If Settings["Top Score"] Then
   sTopScore &= Format(Val(sTopTime), "s") & " sec" 
 End If
   
-If Val(Format(dTimerDiff, "h")) > 0 Then sDisplay = Format(dTime, "h") & " hrs "             'Put the hours in sDisplay only if they exist
-If Val(Format(dTimerDiff, "n")) > 0 Then sDisplay &= Format(dTime, "n") & " min "            'Put the minutes in sDisplay only if they exist
+If Val(Format(dTimerDiff, "h")) > 0 Then sDisplay = Format(dTime, "h") & " hrs "              'Put the hours in sDisplay only if they exist
+If Val(Format(dTimerDiff, "n")) > 0 Then sDisplay &= Format(dTime, "n") & " min "             'Put the minutes in sDisplay only if they exist
 sDisplay &= Format(dTime, "s") & " sec"                                                       'Put the seconds in sDisplay
 
 sLCDDisplay.Add("Charlie Ogier Software")                                                     'That's me!
