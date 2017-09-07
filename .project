@@ -3,14 +3,14 @@
 Title=15 Puzzle game
 Startup=FMain
 Icon=icon.png
-Version=0.5.4
+Version=0.5.0
 Component=gb.image
 Component=gb.gui.qt
 Component=gb.form
 Component=gb.desktop.x11
 Component=gb.desktop
 Component=gb.settings
-Description="Mimics the 15 Puzzle game\nGUI created in code\nIncludes a timer,  'moves' counter, best scores, solvability check, expandable form with automated font height, form size and position are saved."
+Description="Mimics the 15 Puzzle game\nGUI created in code. Includes a timer,  'moves' counter, best scores, solvability check, expandable form with automated font height, form size and position are saved, LCD display, 'Winner' banner and more. Should now play nicely with QT5."
 Authors="Charlie Ogier 2017"
 TabSize=2
 Language=en_US
