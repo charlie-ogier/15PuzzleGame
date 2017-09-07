@@ -20,7 +20,7 @@ Geometry=[-8,-8,224,280]
 Geometry=[-10,-8,224,469]
 
 [DebugWindow/byPos]
-Geometry=[1344,-8,224,504]
+Geometry=[1336,-8,224,504]
 
 [DebugWindow/byWChgeck]
 Geometry=[840,89,452,570]
@@ -83,11 +83,11 @@ Geometry=[1319,34,224,919]
 Path="15PuzzleGame.gambas"
 
 [OpenFile]
-File[1]=".src/FMain.class:94.412"
-Active=1
+File[1]=".src/FMain.class:0.122"
+Active=3
 Count=4
-File[2]=".src/EndGame.class:0.17"
-File[3]=".src/About.class:68.61"
+File[2]=".src/EndGame.class:78.119"
+File[3]=".src/About.class:0.15"
 File[4]=".src/Winner.class:0.31"
 
 [Watches]

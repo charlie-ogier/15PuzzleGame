@@ -22,24 +22,28 @@ Public Sub BuildForm()                                                        'T
 Dim sText As New String[]                                                     'For building the congratulatory message
 Dim siCount As Short                                                          'Counter
 
-sText.Add("Congratulations, you have completed the puzzle")                   'Build message
-sText.Add(Settings["Moves"] & " Moves in " & Settings["Time"])                'Build message
-sText.Add("BEST SCORES")                                                      'Add header
-
-For siCount = 0 To 2                                                          'Loop 3 times
-  hHBox = New HBox(Me)                                                        'Create a new HBox
-  hHBox.Height = 28                                                           'Set HBox height
+If FMain.bEndOrTop Then                                                       'If the 'Top Score' button has been clicked then
+  Me.Title = " Best scores"                                                   'Set the Form Title to 'Best scores'
+Else
+  sText.Add("Congratulations, you have completed the puzzle")                 'Build message
+  sText.Add(Settings["Moves"] & " Moves in " & Settings["Time"])              'Build message
+  sText.Add("BEST SCORES")                                                    'Add header
   
-  hLabel = New Label(hHBox)                                                   'Add a label in the HBox
-  With hLabel                                                                 'Set the Label properties
-    .Height = 28                                                              'Height
-    .expand = True                                                            'Expand
-    .Font.Bold = True                                                         'Make the text bold
-    .Alignment = Align.Center                                                 'Centre the text
-    .Text = sText[siCount]                                                    'Add the next line of text
-  End With  
-  If siCount = 1 Then AddSeparator                                            'Add a separator
-Next
+  For siCount = 0 To 2                                                        'Loop 3 times
+    hHBox = New HBox(Me)                                                      'Create a new HBox
+    hHBox.Height = 28                                                         'Set HBox height
+    
+    hLabel = New Label(hHBox)                                                 'Add a label in the HBox
+    With hLabel                                                               'Set the Label properties
+      .Height = 28                                                            'Height
+      .expand = True                                                          'Expand
+      .Font.Bold = True                                                       'Make the text bold
+      .Alignment = Align.Center                                               'Centre the text
+      .Text = sText[siCount]                                                  'Add the next line of text
+    End With  
+    If siCount = 1 Then AddSeparator                                          'Add a separator
+  Next
+Endif
 
 End
 
@@ -91,26 +95,30 @@ Dim siCount, siLoop As Short                                                  'C
 Dim Scores As New Score[]                                                     'Score store
 Dim Score As Score                                                            'Score
 
-vBest.add(Settings["Moves"])                                                  'Add the last 'Moves' to vBest
-vBest.add(Settings["Time"])                                                   'Add the last 'Time' to vBest
-
-For siCount = 0 To 21 Step 2                                                  'Loop through 10 top scores + the last score
-  Score = New Score                                                           'Create a new Score
-  Score.Moves = vBest[siCount]                                                'Add the 'Moves'
-  Score.dTime = vBest[siCount + 1]                                            'Add the 'Time'
-  Scores.Add(Score)                                                           'Add to Scores
-Next
-
-Scores.Sort()                                                                 'Sort Scores
-
-For siCount = 0 To 9                                                          'Loop through the 1st 10 top scores
-  vNew.Add(Scores[siCount].Moves)                                             'Add the 'Moves' to vNew
-  vNew.Add(Scores[siCount].dTime)                                             'Add the 'Time' to vNew
-Next
-
-Settings["Top Score"] = vNew[0] & "," & vNew[1]                               'Set the Top Score settings
-Settings["Best"] = vNew                                                       'Set all the top 10 scores
-Settings.Save                                                                 'Save the settings
+If FMain.bEndOrTop Then                                                       'If the 'Top Score' button has been clicked then
+  vNew = vBest                                                                'Copy vBest to vNew
+Else
+  vBest.add(Settings["Moves"])                                                'Add the last 'Moves' to vBest
+  vBest.add(Settings["Time"])                                                 'Add the last 'Time' to vBest
+  
+  For siCount = 0 To 21 Step 2                                                'Loop through 10 top scores + the last score
+    Score = New Score                                                         'Create a new Score
+    Score.Moves = vBest[siCount]                                              'Add the 'Moves'
+    Score.dTime = vBest[siCount + 1]                                          'Add the 'Time'
+    Scores.Add(Score)                                                         'Add to Scores
+  Next
+  
+  Scores.Sort()                                                               'Sort Scores
+  
+  For siCount = 0 To 9                                                        'Loop through the 1st 10 top scores
+    vNew.Add(Scores[siCount].Moves)                                           'Add the 'Moves' to vNew
+    vNew.Add(Scores[siCount].dTime)                                           'Add the 'Time' to vNew
+  Next
+  
+  Settings["Top Score"] = vNew[0] & "," & vNew[1]                             'Set the Top Score settings
+  Settings["Best"] = vNew                                                     'Set all the top 10 scores
+  Settings.Save                                                               'Save the settings
+Endif
 
 For siCount = 0 To 19 Step 2                                                  'Loop through siSorter 
   If vNew[siCount] = 9999 Then Break                                          'If vNew value = 9999 then end loop

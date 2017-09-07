@@ -11,12 +11,14 @@ hTopHBox As HBox                                                'To create a HBo
 byPos As New Byte[]                                             'Stores the position of the 'Tiles'
 siMoves As Short                                                'Stores the amount of moves
 hTimer As Timer                                                 'Timer
+hTimer1 As Timer                                                'Timer
 hTimer2 As Timer                                                'Timer
 dTimerStart As Date                                             'Stores the start time 
 dTimerDiff As Date                                              'Stores the time from the start to now
 bTimerOn As Boolean                                             'To know if the Timer is running
 byChecker As New Byte[16, 4]                                    'Stores possible positions of the clicked button
 byMessage As Byte                                               'Controls wich message to diaplay on the LCD
+Public bEndOrTop As Boolean                                     'Showing top scores or working out if a new score is in the mix
 
 Public Sub Form_Open()                                          'Form opens
 
@@ -46,19 +48,21 @@ Public Sub Start()
 
 hTimer2.trigger                                                 'Run hTimer2 once
 hTimer2.start                                                   'Runs the LCD Display
+hTimer1.trigger                                                 'Refresh the diaplay
+
 
 End
 
-Public Sub BuildTopPanel()                                      'To build the ToolButton Panel
-Dim sName As String[] = ["close", "about", "restart"]           'Button names
-Dim sToolTips As String[] = ["Exit", "Program information", "Restart the game"]     'Button ToolTips
-Dim sPictures As String[] = ["icon:/32/close", "icon:/32/info", "icon:/32/refresh"] 'Picture icons for the ToolButtons
-Dim siCount As Short                                            'Counter
-Dim sTemp As String                                             'Temp string
+Public Sub BuildTopPanel()                                                                            'To build the ToolButton Panel
+Dim sName As String[] = ["restart", "topscores", "about", "close"]                                    'Button names
+Dim sToolTips As String[] = ["Restart the game", " Top scores", "Program information", "Exit"]        'Button ToolTips
+Dim sPictures As String[] = ["icon:/32/refresh", "icon:/32/book", "icon:/32/info", "icon:/32/close"]  'Picture icons for the ToolButtons
+Dim siCount As Short                                                                                  'Counter
+Dim sTemp As String                                                                                   'Temp string
 
 hTopHbox = New HBox(Me)                                         'Add a new HBox
 hTopHbox.Height = 32                                            'Set HBox height
-hTopHbox.Padding = 2
+hTopHbox.Padding = 2                                            'Add some padding
 
 For Each sTemp In sPictures                                     'For each item in sPictures..
   hToolButton = New ToolButton(hTopHBox) As "AllToolButtons"    'Create a new ToolButton with the Event name 'AllToolButtons'
@@ -72,6 +76,10 @@ For Each sTemp In sPictures                                     'For each item i
   Inc siCount                                                   'Increase counter
   AddFillerPanel(7)                                             'Add a small filler Panel
 Next
+
+hTopHbox = New HBox(Me)                                         'Add a new HBox
+hTopHbox.Height = 32                                            'Set HBox height
+hTopHbox.Padding = 2                                            'Add some padding
 
 hLCDLabel = New LCDLabel(hTopHBox) As "LCDisplay"               'Add a LCD display to the hTopBox
 With hLCDLabel                                                  'Change the LCDDisplay properties
@@ -105,6 +113,10 @@ Select Case Last.Tag                                            'Select the case
     About.Show                                                  'Show the 'About' Form
   Case "restart"                                                'If the Tag is 'restart' then
     If Message.Question("Are you sure you want to restart the game?", "Cancel", "Restart") > 1 Then PreStart 'Restart if requested
+  Case "topscores"                                              'If Tag is 'topscore' then
+    bEndOrTop = True                                            'Set bEndOrTop to True
+    EndGame.Showmodal                                           'Show the EndGame Form
+    bEndOrTop = False                                           'Set bEndOrTop to False
 End Select
 
 End
@@ -174,10 +186,13 @@ End
 Public Sub AddTimers()                                          'To add Timers
 
 hTimer = New Timer As "MyTimer"                                 'Add a Timer used for timing the play
-hTimer.delay = 100
+hTimer.delay = 100                                              'Timer delay
+
+hTimer1 = New Timer As "StartTimer"                             'Add a Timer used to refresh the display
+hTimer1.Delay = 1000                                            'Timer delay
 
 hTimer2 = New Timer As "LCDTimer"                               'Add a Timer used to rotate the LCD Display
-hTimer2.Delay = 3000
+hTimer2.Delay = 3000                                            'Timer delay
 
 End
 
@@ -305,8 +320,9 @@ bTimerOn = False                                                'Reset bTimer
 hTimer.Stop                                                     'Stop the main timer
 hPlayAreaPanel.Children.clear                                   'Clear all buttons from the Form
 BuildForm                                                       'Build a new collection of Buttons
-Me.Width -= 1                                                   'To force a refresh
-Me.Width += 1                                                   'Put the Frorm back to its original size
+'hTimer1.trigger
+'Me.Width -= 1                                                   'To force a refresh
+'Me.Width += 1                                                   'Put the Frorm back to its original size
 Start                                                           'Run the Start routine
 
 Catch                                                           'Stops a crash when closing the program while it's busy

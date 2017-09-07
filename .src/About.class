@@ -18,7 +18,7 @@ hTextArea = New TextArea(Me)                                        'Create a Te
 hTextArea.Expand = True                                             'Expand the TextArea
 hTextArea.Wrap = True                                               'Allow word wrapping
 
-sOutput = "The object of the game is to get all the" &       'Build the text to display
+sOutput = "The object of the game is to get all the" &              'Build the text to display
 " numbers in the correct order and the blank space positioned after the '15'. The timer will start automatically when you start the game by clicking on a number." & gb.NewLine & gb.NewLine
 sOutput &= "Inspiration came from: -" & gb.NewLine & "http://rosettacode.org/wiki/15_Puzzle_Game (Hyperlink at bottom of this form)." & gb.NewLine & gb.NewLine
 sOutput &= "The 'IsItSolvable' routine created with help from https://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html." & gb.NewLine
